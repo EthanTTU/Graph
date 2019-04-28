@@ -4,10 +4,10 @@
 #define MIN = 0;
 
 class Graph {
+	
 	class Edge; //this is fix to calling class which is declared below
 	class Vertex {
 		public:
-			std::map<std::string, int> distanceMap, pathMap, mapHeap;
 			char label;
 			Vertex *next;
 			Edge *edgeList;
@@ -37,7 +37,11 @@ class Graph {
 				this->weight = 0;
 			}
 		};
-public:
+public:*
+	Vertex *Current;
+	char source;
+	std::map<char, int> distanceMap, mapHeap;
+	std::map<char, char> pathMap;
 	Vertex *vertList, *visited, *stack;
 	void destr_helper(Vertex*);
 	Graph() {
@@ -47,10 +51,11 @@ public:
 	}
 	~Graph();
 	bool add_vert(char);
-	bool rem_vert(char);
 	bool add_edge(char,char,int);
 	void visit(Vertex*);
 	void display();
 	char getLabel(char);
-	void visitNeighbors();
+	void visitNeighbors(Vertex*);
+	bool isVisited(char);
+	char findSmallestUnvisitedVertexInMap();
 };

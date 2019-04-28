@@ -1,5 +1,7 @@
 #include "Graph1.h"
-#include <iostream>;
+#include <iostream>
+#include <climits>
+
 using namespace std;
 
 void Graph::destr_helper(Vertex* vert) {
@@ -22,39 +24,8 @@ bool Graph::add_vert(char label) {
 	Vertex *newNode = new Vertex(label);
 	newNode->next = this->vertList;
 	this->vertList = newNode;
+	this->mapHeap[label] = INT_MAX;
 	return true;
-}
-
-bool Graph::rem_vert(char label) {
-	Vertex *delVert = 0, *prevVert = 0;
-	for (Vertex *tempVert = this->vertList; tempVert; tempVert = tempVert->next) {
-		if (tempVert->label !=label) {
-			for (Edge *tempEdge = tempVert->edgeList; tempEdge; tempEdge = tempEdge->next) {
-				if (tempEdge->to->label == label) {
-					return false;
-				}
-			}
-			if (tempVert->next && tempVert->next->label == label) {
-				prevVert = tempVert;
-			}
-		}
-		else {
-			delVert = tempVert;
-		}
-	}
-	if (delVert) {
-		if (prevVert) {
-			prevVert->next = delVert->next;
-		}
-		else {
-			this->vertList = delVert->next;
-		}
-		delete delVert;
-		return true;
-	}
-	else {
-		return false;
-	}
 }
 
 bool Graph::add_edge(char from, char to, int weight) {
@@ -108,26 +79,59 @@ char Graph::getLabel(char label) {
 	return label;
 }
 
-void Graph::visitNeighbors(){
-	for (Edge *temp = this->vertList->edgeList; temp->edgeList; temp = temp->next){
-		cout << temp << endl;
+void Graph::djikstras(char source) {
+	Vertex *current = vertList;
+	for(; current->label == source; current = current->next) {}
+	
+	// Mark the source as visited and put it in the other maps
+	this->mapHeap[source] = 0;
+	current->visited = true;
+	this->pathMap[source] = NULL;
+	this->distanceMap[source] = 0;
+	
+	while (!mapHeap.empty()) {
+		current = findSmallestUnvisitedVertexInMap();
+		visitNeighbors(current);
+	}
+	
+	// Print out the maps here
+}
+
+void Graph::visitNeighbors(Vertex *current){
+	// Goes through all of the nayboring edges
+	for (Edge* temp = current->edgeList; temp; temp = temp->next){
+		// If the mapHeap has a value greater than the edge we are looking at
+		if (this->mapHeap[temp->to->label] > temp->weight) {
+			this->mapHeap[temp->to->label] = temp->weight;
+			this->pathMap[temp->to->label] = current->label;
+		} 
+		// Otherwise...
+		else {
+		
+		}
 	}
 }
 
-
-/* def gtrav(6,3)
-push 5 onto stack
-while stack not empty
-	pop stack into v
-if v unvisited{ mark v visited
-	push all v's adjacent vertices}
-
-	Stack 5 2 7 6 10
-	Visited: 5 7 10 6 3 4 1
+bool Graph::isVisited(char label) {
+	Vertex *current = this->vertList;
+	for (; current->label == label; current = current->next) {}
 	
-	      5
-	   3     7
-	1    4  6   10
+	return current->visited;
+}
+
+char Graph::findSmallestUnvisitedVertexInMap() {
+	char minLabel;
+	int minValue = INT_MAX;
+	for (map<char, int>::iterator it = this->mapHeap.begin(); it != this->mapHeap.end(); ++it) {
+		if ((it->second < minValue) && (!isVisited(it->first))) {
+			minValue = it->second;
+			minLabel = it->first;
+		}
+	}
 	
-	Queue
-	Visited: 5 3 7 1 4 6 10*/
+	return minLabel;
+}
+
+char Graph::checkState() {
+
+}
