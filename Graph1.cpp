@@ -57,8 +57,10 @@ bool Graph::rem_vert(char label) {
 	}
 }
 
-bool Graph::add_edge(char from, char to, int distance) {
+bool Graph::add_edge(char from, char to, int weight) {
 	Vertex *tempVert, *fromVert = 0, *toVert = 0;
+	
+	// Finds target nodes
 	for (tempVert = this->vertList; tempVert; tempVert = tempVert->next) { //goes through all verticies
 		if (tempVert->label == from) {
 			fromVert = tempVert;
@@ -67,103 +69,27 @@ bool Graph::add_edge(char from, char to, int distance) {
 			toVert = tempVert;
 		}
 	}
+	
+	// Error handling
 	if (!fromVert || !toVert) {
 		return false;
 	}
+	
+	// Creates new Edge and it to the edge list
 	Edge *newEdge = new Edge(toVert);
 	newEdge->next = fromVert->edgeList;
-	newEdge->weight = distance;
+	newEdge->weight = weight;
 	fromVert->edgeList = newEdge;
 	return true;
 }
-bool Graph::rem_edge(char from, char to) {
-	Vertex *Vert;
-	Edge *edge, *prev = 0;
-	for (Vert = this->vertList; Vert; Vert->next) {
-		if (Vert->label == from) {
-			break;
-		}
-	}
-	if (!Vert) {
-		return false;
-	}
-	for (edge = Vert->edgeList; edge; edge = edge->next) {
-		if (edge->next && edge->next->to->label == to) { //checks for next pointer first
-			prev = edge;
-		}
-		if (edge->to->label == to) {
-			break;
-		}
-	}
 
-	if (edge) {
-		if (!prev) { //if edge is at the head
-			Vert->edgeList = edge->next; 
-		}
-		else {
-			prev->next = edge->next;
-		}
-		delete edge;
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-void Graph::DFT(char source) {
-	Vertex *temp = this->vertList;
-	for (; temp && temp->label != source; temp = temp->next);
-	if (temp){
-		stack_push(temp);
-	}
-	else {
-		return;
-	}
-	while (stack) {
-		temp = stack; //pop stack
-		stack = stack->next; //pop stack
-		temp->next = this->visited; //pop stack
-		this->visited = temp;
-		Edge *eTemp = temp->edgeList;
-		for (; eTemp; eTemp = eTemp->next) {
-			if (!eTemp->to->visited) {
-				stack_push(eTemp->to);
-			}
-		}
-		if (!this->stack && this->vertList) {
-			stack_push(this->vertList);
-		}
-	}
-	this->visit(this->visited);
-	this->vertList = this->visited;
-	this->visited = 0;
-	for (temp = this->vertList; temp; temp = temp->next) {
-		temp->visited = false;
-	}
-}
-
-void Graph::stack_push(Vertex *pushNode) {
-	Vertex *prev = 0, *temp = vertList;
-	pushNode->visited = true;
-	for (; temp && temp != pushNode; temp = temp->next) {
-		prev = temp;
-	}
-	if (prev) {
-		prev->next = temp->next;
-	}
-	else {
-		this->vertList = this->vertList->next;
-	}
-	temp->next = stack;
-	stack = temp;
-}
 void Graph::visit(Vertex *vert) {
 	if (vert) {
 		this->visit(vert->next);
 		cout << vert->label << endl;
 	}
 }
+
 void Graph::display() {
 	for(Vertex *vert = this->vertList; vert; vert = vert->next) { 
 		cout << getLabel(vert->label) << " -> ";
@@ -181,6 +107,14 @@ char Graph::getLabel(char label) {
 	int a = label;
 	return label;
 }
+
+void Graph::visitNeighbors(){
+	for (Edge *temp = this->vertList->edgeList; temp->edgeList; temp = temp->next){
+		cout << temp << endl;
+	}
+}
+
+
 /* def gtrav(6,3)
 push 5 onto stack
 while stack not empty

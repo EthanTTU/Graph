@@ -15,6 +15,7 @@ int main() {
 	x.add_edge('B', 'C', 7);
 	x.add_edge('B', 'D', 15);
 	x.add_edge('D', 'C', 18);
+	x.visitNeighbors();
 	
 	//x.add_edge(0, 2);
 	//x.add_edge(1, 2);
