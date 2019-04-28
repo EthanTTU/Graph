@@ -30,7 +30,7 @@ bool Graph::add_vert(char label) {
 
 bool Graph::add_edge(char from, char to, int weight) {
 	Vertex *tempVert, *fromVert = 0, *toVert = 0;
-	
+
 	// Finds target nodes
 	for (tempVert = this->vertList; tempVert; tempVert = tempVert->next) { //goes through all verticies
 		if (tempVert->label == from) {
@@ -40,12 +40,12 @@ bool Graph::add_edge(char from, char to, int weight) {
 			toVert = tempVert;
 		}
 	}
-	
+
 	// Error handling
 	if (!fromVert || !toVert) {
 		return false;
 	}
-	
+
 	// Creates new Edge and it to the edge list
 	Edge *newEdge = new Edge(toVert);
 	newEdge->next = fromVert->edgeList;
@@ -62,7 +62,7 @@ void Graph::visit(Vertex *vert) {
 }
 
 void Graph::display() {
-	for(Vertex *vert = this->vertList; vert; vert = vert->next) { 
+	for(Vertex *vert = this->vertList; vert; vert = vert->next) {
 		cout << getLabel(vert->label) << " -> ";
 		if (vert->edgeList) {
 			cout << vert->edgeList->to->label;
@@ -82,18 +82,18 @@ char Graph::getLabel(char label) {
 void Graph::djikstras(char source) {
 	Vertex *current = vertList;
 	for(; current->label == source; current = current->next) {}
-	
+
 	// Mark the source as visited and put it in the other maps
 	this->mapHeap[source] = 0;
 	current->visited = true;
 	this->pathMap[source] = NULL;
 	this->distanceMap[source] = 0;
-	
+
 	while (!mapHeap.empty()) {
 		current = findSmallestUnvisitedVertexInMap();
 		visitNeighbors(current);
 	}
-	
+
 	// Print out the maps here
 }
 
@@ -104,10 +104,10 @@ void Graph::visitNeighbors(Vertex *current){
 		if (this->mapHeap[temp->to->label] > temp->weight) {
 			this->mapHeap[temp->to->label] = temp->weight;
 			this->pathMap[temp->to->label] = current->label;
-		} 
+		}
 		// Otherwise...
 		else {
-		
+
 		}
 	}
 }
@@ -115,7 +115,7 @@ void Graph::visitNeighbors(Vertex *current){
 bool Graph::isVisited(char label) {
 	Vertex *current = this->vertList;
 	for (; current->label == label; current = current->next) {}
-	
+
 	return current->visited;
 }
 
@@ -128,10 +128,16 @@ char Graph::findSmallestUnvisitedVertexInMap() {
 			minLabel = it->first;
 		}
 	}
-	
+
 	return minLabel;
 }
 
 char Graph::checkState() {
+  cout << "Distance Map: " << endl;
+  for (map<char,int>::iterator it=this->distanceMap.begin(); it!=this->distanceMap.end(); ++it)
+    cout << it->first << " => " << it->second << '\n';
 
+  cout << "Path Map: " << endl;
+  for (map<char,char>::iterator it=this->pathMap.begin(); it!=this->pathMap.end(); ++it)
+    cout << it->first << " => " << it->second << '\n';
 }
