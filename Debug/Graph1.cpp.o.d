@@ -1,3 +1,3 @@
-Debug/Graph1.cpp.o: Graph1.cpp Graph1.h
+Debug/Graph1.cpp.o: Graph1.cpp GraphProject.h
 
-Graph1.h:
+GraphProject.h:

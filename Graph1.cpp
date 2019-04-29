@@ -1,4 +1,4 @@
-#include "Graph1.h"
+#include "GraphProject.h"
 #include <iostream>
 #include <climits>
 
@@ -81,63 +81,71 @@ char Graph::getLabel(char label) {
 
 void Graph::djikstras(char source) {
 	Vertex *current = vertList;
-	for(; current->label == source; current = current->next) {}
+	for(; current->label != source; current = current->next) {}
 
+	cout << "Ruuning Djikstra's for " <<current->label << endl;
 	// Mark the source as visited and put it in the other maps
 	this->mapHeap[source] = 0;
-	current->visited = true;
-	this->pathMap[source] = NULL;
+	this->pathMap[source] = 'N';
 	this->distanceMap[source] = 0;
 
+	
 	while (!mapHeap.empty()) {
-		current = findSmallestUnvisitedVertexInMap();
+		
+		// Save the current's distance from source into the distance map
+		this->distanceMap[current->label] = this->mapHeap[current->label];
+		// Visit all of the neighbors
 		visitNeighbors(current);
+		
+		// Mark the current node as visited
+		this->mapHeap.erase(current->label);
+		
+		// Find a new current, which is the smallest distance in the map
+		char minLabel;
+		Vertex* minVert = this->vertList;
+		int minValue = INT_MAX;
+		for (map<char, int>::iterator it = this->mapHeap.begin(); it != this->mapHeap.end(); ++it) {
+			if (it->second < minValue) {
+				minValue = it->second;
+				minLabel = it->first;
+			}
+		}
+		
+		for (; minVert->label != minLabel; minVert = minVert->next) {}
+		
+		current = minVert;
 	}
-
-	// Print out the maps here
+	checkState();
 }
 
 void Graph::visitNeighbors(Vertex *current){
 	// Goes through all of the nayboring edges
 	for (Edge* temp = current->edgeList; temp; temp = temp->next){
-		// If the mapHeap has a value greater than the edge we are looking at
-		if (this->mapHeap[temp->to->label] > temp->weight) {
-			this->mapHeap[temp->to->label] = temp->weight;
-			this->pathMap[temp->to->label] = current->label;
+		
+		// If the node is already visited, skip it
+		if (this->mapHeap.count(current->label) == 0) {
+			continue;
 		}
-		// Otherwise...
-		else {
-
-		}
-	}
-}
-
-bool Graph::isVisited(char label) {
-	Vertex *current = this->vertList;
-	for (; current->label == label; current = current->next) {}
-
-	return current->visited;
-}
-
-char Graph::findSmallestUnvisitedVertexInMap() {
-	char minLabel;
-	int minValue = INT_MAX;
-	for (map<char, int>::iterator it = this->mapHeap.begin(); it != this->mapHeap.end(); ++it) {
-		if ((it->second < minValue) && (!isVisited(it->first))) {
-			minValue = it->second;
-			minLabel = it->first;
+		
+		// If the target node has already been visited
+		if (this->mapHeap.count(temp->to->label) == 1) {
+			int tempMin = temp->weight + this->distanceMap[current->label];
+			if (tempMin < this->mapHeap[temp->to->label]) {
+				this->mapHeap[temp->to->label] = tempMin;
+				this->pathMap[temp->to->label] = current->label;
+			}
 		}
 	}
-
-	return minLabel;
 }
 
-char Graph::checkState() {
-  cout << "Distance Map: " << endl;
-  for (map<char,int>::iterator it=this->distanceMap.begin(); it!=this->distanceMap.end(); ++it)
-    cout << it->first << " => " << it->second << '\n';
+void Graph::checkState() {
+	cout << "Distance Map: " << endl;
+	for (map<char,int>::iterator it=this->distanceMap.begin(); it!=this->distanceMap.end(); ++it)
+		cout << it->first << " => " << it->second << endl;
 
-  cout << "Path Map: " << endl;
-  for (map<char,char>::iterator it=this->pathMap.begin(); it!=this->pathMap.end(); ++it)
-    cout << it->first << " => " << it->second << '\n';
+	cout << "Path Map: " << endl;
+	for (map<char,char>::iterator it=this->pathMap.begin(); it!=this->pathMap.end(); ++it)
+		cout << it->first << "-" << it->second << endl;
+	
+	cout << endl;
 }

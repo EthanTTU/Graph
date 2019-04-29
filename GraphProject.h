@@ -2,7 +2,6 @@
 #include <map>
 
 class Graph {
-	
 	class Edge; //this is fix to calling class which is declared below
 	class Vertex {
 		public:
